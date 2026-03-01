@@ -19,4 +19,11 @@ config :logger, :console,
 
 config :phoenix, :json_library, Jason
 
+# Dante Director / DDM Managed API configuration
+# Set these to connect to your Dante Director instance.
+# API keys are generated in Director: Settings > API Keys
+config :netaudio, Netaudio.Director.Client,
+  endpoint: System.get_env("DANTE_DIRECTOR_ENDPOINT"),
+  api_key: System.get_env("DANTE_DIRECTOR_API_KEY")
+
 import_config "#{config_env()}.exs"

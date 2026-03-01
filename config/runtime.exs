@@ -25,4 +25,11 @@ if config_env() == :prod do
 
   config :netaudio, Netaudio.Dante.Browser,
     mdns_timeout: String.to_float(System.get_env("MDNS_TIMEOUT") || "3.0")
+
+  # Dante Director / DDM Managed API — override in prod via env vars
+  if System.get_env("DANTE_DIRECTOR_ENDPOINT") do
+    config :netaudio, Netaudio.Director.Client,
+      endpoint: System.get_env("DANTE_DIRECTOR_ENDPOINT"),
+      api_key: System.get_env("DANTE_DIRECTOR_API_KEY")
+  end
 end

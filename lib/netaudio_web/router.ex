@@ -24,6 +24,11 @@ defmodule NetaudioWeb.Router do
     live "/channels", ChannelLive.Index, :index
     live "/subscriptions", SubscriptionLive.Index, :index
     live "/subscriptions/new", SubscriptionLive.New, :new
+
+    # Director (DDM Managed API)
+    live "/director/settings", DirectorLive.Settings, :index
+    live "/director/domains", DirectorLive.Domains, :index
+    live "/director/domains/:id", DirectorLive.DomainDetail, :show
   end
 
   scope "/api", NetaudioWeb.Api do
@@ -39,6 +44,20 @@ defmodule NetaudioWeb.Router do
     get "/subscriptions", SubscriptionController, :index
     post "/subscriptions", SubscriptionController, :create
     delete "/subscriptions/:id", SubscriptionController, :delete
+
+    # Director (DDM Managed API)
+    get "/director/status", DirectorController, :status
+    get "/director/domains", DirectorController, :list_domains
+    get "/director/domains/:id", DirectorController, :get_domain
+    get "/director/domains/:id/routing", DirectorController, :get_routing
+    get "/director/domains/:id/clocking", DirectorController, :get_clocking
+    get "/director/domains/:domain_id/devices/:device_id", DirectorController, :get_device
+    get "/director/unenrolled", DirectorController, :list_unenrolled
+    post "/director/subscriptions", DirectorController, :set_subscriptions
+    delete "/director/subscriptions", DirectorController, :clear_subscription
+    post "/director/enrol", DirectorController, :enrol_devices
+    post "/director/unenrol", DirectorController, :unenrol_devices
+    post "/director/graphql", DirectorController, :graphql
   end
 
   if Application.compile_env(:netaudio, :dev_routes) do
