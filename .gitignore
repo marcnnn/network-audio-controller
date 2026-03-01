@@ -4,3 +4,19 @@
 dist/
 __pycache__
 debug.log
+
+# Elixir / Phoenix
+/_build/
+/deps/
+/*.ez
+/cover/
+/doc/
+/.fetch
+erl_crash.dump
+*.beam
+*.plt
+*.pot
+/tmp/
+/node_modules/
+/assets/node_modules/
+/.elixir_ls/
