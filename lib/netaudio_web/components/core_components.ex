@@ -1,67 +1,64 @@
 defmodule NetaudioWeb.CoreComponents do
   @moduledoc """
-  Provides core UI components for the Netaudio web interface.
+  Core UI components using DaisyUI classes.
   """
 
   use Phoenix.Component
 
-  @doc """
-  Renders a page header.
-  """
-  attr :class, :string, default: nil
+  # Page header
 
+  attr :class, :string, default: nil
   slot :inner_block, required: true
   slot :actions
 
   def header(assigns) do
     ~H"""
-    <div class="md:flex md:items-center md:justify-between mb-8">
-      <div class="min-w-0 flex-1">
-        <h2 class={"text-2xl font-bold leading-7 text-white sm:truncate sm:text-3xl sm:tracking-tight #{@class}"}>
-          <%= render_slot(@inner_block) %>
-        </h2>
-      </div>
-      <div :if={@actions != []} class="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <h2 class={"text-2xl font-bold text-base-content #{@class}"}>
+        <%= render_slot(@inner_block) %>
+      </h2>
+      <div :if={@actions != []} class="flex flex-wrap gap-2">
         <%= render_slot(@actions) %>
       </div>
     </div>
     """
   end
 
-  @doc """
-  Renders a card container.
-  """
+  # Stat card for dashboard
+
+  attr :label, :string, required: true
+  attr :value, :any, required: true
+  attr :desc, :string, default: nil
   attr :class, :string, default: nil
 
-  slot :inner_block, required: true
-
-  def card(assigns) do
+  def stat_card(assigns) do
     ~H"""
-    <div class={"bg-gray-800 rounded-lg border border-gray-700 shadow-lg #{@class}"}>
-      <%= render_slot(@inner_block) %>
+    <div class={"stat bg-base-200 rounded-box shadow #{@class}"}>
+      <div class="stat-title text-base-content/60"><%= @label %></div>
+      <div class="stat-value text-primary"><%= @value %></div>
+      <div :if={@desc} class="stat-desc"><%= @desc %></div>
     </div>
     """
   end
 
-  @doc """
-  Renders a status badge.
-  """
+  # Status badge using DaisyUI badge
+
   attr :status, :atom, required: true
 
   def status_badge(assigns) do
-    {bg, text} =
+    badge_class =
       case assigns.status do
-        :connected -> {"bg-green-900/50 border-green-700", "text-green-300"}
-        :error -> {"bg-red-900/50 border-red-700", "text-red-300"}
-        :warning -> {"bg-yellow-900/50 border-yellow-700", "text-yellow-300"}
-        :idle -> {"bg-gray-700 border-gray-600", "text-gray-300"}
-        _ -> {"bg-gray-700 border-gray-600", "text-gray-300"}
+        :connected -> "badge-success"
+        :error -> "badge-error"
+        :warning -> "badge-warning"
+        :idle -> "badge-ghost"
+        _ -> "badge-ghost"
       end
 
-    assigns = assign(assigns, bg: bg, text: text)
+    assigns = assign(assigns, :badge_class, badge_class)
 
     ~H"""
-    <span class={"inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium #{@bg} #{@text}"}>
+    <span class={"badge badge-sm #{@badge_class}"}>
       <%= status_label(@status) %>
     </span>
     """
@@ -73,38 +70,34 @@ defmodule NetaudioWeb.CoreComponents do
   defp status_label(:idle), do: "Idle"
   defp status_label(_), do: "Unknown"
 
-  @doc """
-  Renders a button.
-  """
-  attr :type, :string, default: "button"
-  attr :class, :string, default: nil
-  attr :variant, :atom, default: :primary
-  attr :rest, :global
+  # Subscription status badge
 
-  slot :inner_block, required: true
+  attr :code, :integer, required: true
 
-  def button(assigns) do
-    base = "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-
-    variant_classes =
-      case assigns.variant do
-        :primary -> "bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600"
-        :secondary -> "bg-gray-700 text-gray-300 hover:bg-gray-600"
-        :danger -> "bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600"
+  def sub_status_badge(assigns) do
+    {badge_class, icon} =
+      cond do
+        assigns.code in [9, 10, 14, 4] -> {"badge-success", "✓"}
+        assigns.code in [1, 3, 7, 8] -> {"badge-warning", "!"}
+        assigns.code in [0] -> {"badge-ghost", "-"}
+        true -> {"badge-error", "✕"}
       end
 
-    assigns = assign(assigns, :classes, "#{base} #{variant_classes} #{assigns.class}")
+    labels = Netaudio.Dante.Constants.subscription_status_label(assigns.code)
+    label = if labels != [], do: hd(labels), else: "Unknown"
+
+    assigns = assign(assigns, badge_class: badge_class, icon: icon, label: label)
 
     ~H"""
-    <button type={@type} class={@classes} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </button>
+    <span class={"badge badge-sm gap-1 #{@badge_class}"}>
+      <span><%= @icon %></span>
+      <%= @label %>
+    </span>
     """
   end
 
-  @doc """
-  Renders a data table.
-  """
+  # Data table using DaisyUI table
+
   attr :id, :string, required: true
   attr :rows, :list, required: true
 
@@ -114,18 +107,18 @@ defmodule NetaudioWeb.CoreComponents do
 
   def table(assigns) do
     ~H"""
-    <div class="overflow-hidden rounded-lg border border-gray-700">
-      <table class="min-w-full divide-y divide-gray-700">
-        <thead class="bg-gray-800">
-          <tr>
-            <th :for={col <- @col} class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">
+    <div class="overflow-x-auto rounded-box border border-base-300 bg-base-200">
+      <table class="table table-sm">
+        <thead>
+          <tr class="border-b border-base-300">
+            <th :for={col <- @col} class="text-base-content/60 font-medium text-xs uppercase tracking-wider">
               <%= col.label %>
             </th>
           </tr>
         </thead>
-        <tbody id={@id} class="divide-y divide-gray-700 bg-gray-800/50">
-          <tr :for={row <- @rows} class="hover:bg-gray-700/50 transition-colors">
-            <td :for={col <- @col} class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">
+        <tbody id={@id}>
+          <tr :for={row <- @rows} class="hover">
+            <td :for={col <- @col} class="text-sm">
               <%= render_slot(col, row) %>
             </td>
           </tr>
@@ -135,18 +128,21 @@ defmodule NetaudioWeb.CoreComponents do
     """
   end
 
-  @doc """
-  Renders a stat card for the dashboard.
-  """
-  attr :label, :string, required: true
-  attr :value, :any, required: true
-  attr :icon, :string, default: nil
+  # Empty state placeholder
 
-  def stat_card(assigns) do
+  attr :icon, :string, default: nil
+  slot :inner_block, required: true
+  slot :action
+
+  def empty_state(assigns) do
     ~H"""
-    <div class="bg-gray-800 rounded-lg border border-gray-700 p-6">
-      <dt class="text-sm font-medium text-gray-400"><%= @label %></dt>
-      <dd class="mt-2 text-3xl font-semibold tracking-tight text-white"><%= @value %></dd>
+    <div class="card bg-base-200 border border-base-300">
+      <div class="card-body items-center text-center py-12">
+        <p class="text-base-content/50"><%= render_slot(@inner_block) %></p>
+        <div :if={@action != []} class="card-actions mt-4">
+          <%= render_slot(@action) %>
+        </div>
+      </div>
     </div>
     """
   end

@@ -17,12 +17,6 @@
   cursor: wait;
 }
 
-.phx-modal-close {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .phx-disconnected {
   cursor: wait;
 }
@@ -31,35 +25,96 @@
   pointer-events: none;
 }
 
-/* Custom animations */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-/* Connection status indicator */
+/* Connection status banner */
 .phx-connected .connection-status {
   display: none;
 }
 
 .phx-disconnected .connection-status {
-  display: block;
+  display: flex;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
   padding: 0.5rem;
-  text-align: center;
-  background-color: rgba(239, 68, 68, 0.9);
-  color: white;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.875rem;
+}
+
+/* Routing matrix crosspoint grid — Dante Controller style */
+.routing-matrix {
+  display: grid;
+  overflow: auto;
+  max-height: calc(100vh - 16rem);
+}
+
+.crosspoint {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.15s ease;
+  font-size: 0.75rem;
+}
+
+.crosspoint:hover {
+  transform: scale(1.15);
+  z-index: 10;
+}
+
+.crosspoint-available {
+  @apply border-info/30 bg-info/10 text-info;
+}
+
+.crosspoint-available:hover {
+  @apply bg-info/30;
+}
+
+.crosspoint-active {
+  @apply border-success bg-success/20 text-success;
+}
+
+.crosspoint-active:hover {
+  @apply bg-success/30;
+}
+
+.crosspoint-error {
+  @apply border-error/50 bg-error/10 text-error;
+}
+
+.crosspoint-disabled {
+  @apply border-base-300/20 bg-base-300/5 cursor-not-allowed;
+}
+
+.crosspoint-disabled:hover {
+  transform: none;
+}
+
+/* Rotated TX device/channel labels */
+.tx-label {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: 0.7rem;
+  padding: 0.25rem 0.15rem;
+  max-height: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Discovering pulse animation */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 oklch(var(--p) / 0.4); }
+  70% { box-shadow: 0 0 0 10px oklch(var(--p) / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(var(--p) / 0); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s infinite;
 }

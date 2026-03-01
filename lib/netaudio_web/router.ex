@@ -18,6 +18,7 @@ defmodule NetaudioWeb.Router do
     pipe_through :browser
 
     live "/", DashboardLive, :index
+    live "/routing", RoutingMatrixLive, :index
     live "/devices", DeviceLive.Index, :index
     live "/devices/:id", DeviceLive.Show, :show
     live "/channels", ChannelLive.Index, :index

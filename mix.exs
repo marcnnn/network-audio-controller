@@ -40,6 +40,8 @@ defmodule Netaudio.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev}
+      # DaisyUI is installed as a Tailwind plugin via npm in assets/
+      # Run: cd assets && npm install daisyui
     ]
   end
 

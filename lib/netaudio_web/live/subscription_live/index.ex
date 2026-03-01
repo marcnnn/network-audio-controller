@@ -74,45 +74,68 @@ defmodule NetaudioWeb.SubscriptionLive.Index do
     <.header>
       Subscriptions
       <:actions>
-        <a href="/subscriptions/new" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
-          Add Subscription
+        <a href="/subscriptions/new" class="btn btn-primary btn-sm gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Add
         </a>
       </:actions>
     </.header>
 
-    <div class="mb-6">
+    <%!-- Filters --%>
+    <div class="flex items-center gap-3 mb-5">
       <form phx-change="filter">
-        <select name="status" class="bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm">
-          <option value="all" selected={@filter == "all"}>All</option>
-          <option value="active" selected={@filter == "active"}>Active Only</option>
-          <option value="inactive" selected={@filter == "inactive"}>Inactive Only</option>
-        </select>
+        <div class="join">
+          <input class="join-item btn btn-sm" type="radio" name="status" value="all" aria-label="All" checked={@filter == "all"} />
+          <input class="join-item btn btn-sm" type="radio" name="status" value="active" aria-label="Active" checked={@filter == "active"} />
+          <input class="join-item btn btn-sm" type="radio" name="status" value="inactive" aria-label="Inactive" checked={@filter == "inactive"} />
+        </div>
       </form>
+      <div class="badge badge-ghost badge-lg">
+        <%= length(@subscriptions) %> subscription(s)
+      </div>
     </div>
 
     <%= if Enum.empty?(@subscriptions) do %>
-      <.card>
-        <div class="p-12 text-center">
-          <p class="text-gray-400">No subscriptions found.</p>
-        </div>
-      </.card>
+      <.empty_state>
+        No subscriptions found.
+        <:action>
+          <a href="/subscriptions/new" class="btn btn-primary btn-sm">Add Subscription</a>
+        </:action>
+      </.empty_state>
     <% else %>
-      <.table id="subscriptions" rows={@subscriptions}>
-        <:col :let={sub} label="RX Channel"><%= sub.rx_channel_name %></:col>
-        <:col :let={sub} label="RX Device"><%= sub.rx_device_name %></:col>
-        <:col :let={sub} label="TX Channel"><%= sub.tx_channel_name %></:col>
-        <:col :let={sub} label="TX Device"><%= sub.tx_device_name %></:col>
-        <:col :let={sub} label="Status">
-          <% labels = Constants.subscription_status_label(sub.status_code) %>
-          <span class={"text-xs font-medium #{status_color(sub.status_code)}"}><%= hd(labels) %></span>
-        </:col>
-      </.table>
+      <div class="overflow-x-auto rounded-box border border-base-300 bg-base-200">
+        <table class="table table-sm">
+          <thead>
+            <tr class="border-b border-base-300">
+              <th class="text-xs uppercase tracking-wider text-base-content/60">RX Channel</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">RX Device</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60"></th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">TX Channel</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">TX Device</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for sub <- @subscriptions do %>
+              <tr class="hover">
+                <td class="font-mono text-xs text-info"><%= sub.rx_channel_name %></td>
+                <td class="text-sm"><%= sub.rx_device_name %></td>
+                <td class="text-center text-base-content/30">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 inline" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                  </svg>
+                </td>
+                <td class="font-mono text-xs text-accent"><%= sub.tx_channel_name %></td>
+                <td class="text-sm"><%= sub.tx_device_name %></td>
+                <td><.sub_status_badge code={sub.status_code} /></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% end %>
     """
   end
-
-  defp status_color(code) when code in [9, 10, 14, 4], do: "text-green-400"
-  defp status_color(code) when code in [1, 3, 7, 8], do: "text-yellow-400"
-  defp status_color(code) when code in [0], do: "text-gray-400"
-  defp status_color(_code), do: "text-red-400"
 end

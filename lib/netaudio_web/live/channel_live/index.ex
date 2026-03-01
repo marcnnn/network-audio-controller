@@ -108,47 +108,65 @@ defmodule NetaudioWeb.ChannelLive.Index do
       Channels
     </.header>
 
-    <div class="mb-6 flex space-x-4">
-      <form phx-change="filter" class="flex space-x-4">
-        <select name="type" class="bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm">
+    <%!-- Filters --%>
+    <div class="flex flex-wrap gap-3 mb-5">
+      <form phx-change="filter" class="flex flex-wrap gap-3">
+        <select name="type" class="select select-bordered select-sm">
           <option value="all" selected={@filter_type == "all"}>All Types</option>
           <option value="tx" selected={@filter_type == "tx"}>Transmitters (TX)</option>
           <option value="rx" selected={@filter_type == "rx"}>Receivers (RX)</option>
         </select>
-        <select name="device" class="bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm">
+        <select name="device" class="select select-bordered select-sm">
           <option value="all" selected={@filter_device == "all"}>All Devices</option>
           <%= for name <- @device_names do %>
             <option value={name} selected={@filter_device == name}><%= name %></option>
           <% end %>
         </select>
       </form>
+      <div class="badge badge-ghost badge-lg self-center">
+        <%= length(@channels) %> channel(s)
+      </div>
     </div>
 
     <%= if Enum.empty?(@channels) do %>
-      <.card>
-        <div class="p-12 text-center">
-          <p class="text-gray-400">No channels found. Discover devices first.</p>
-        </div>
-      </.card>
+      <.empty_state>
+        No channels found. Discover devices first.
+      </.empty_state>
     <% else %>
-      <.table id="channels" rows={@channels}>
-        <:col :let={ch} label="Device">
-          <a href={"/devices/#{ch.device_server_name}"} class="text-indigo-400 hover:text-indigo-300">
-            <%= ch.device_name %>
-          </a>
-        </:col>
-        <:col :let={ch} label="Type">
-          <span class={"px-2 py-0.5 rounded text-xs font-medium #{if ch.channel_type == :tx, do: "bg-emerald-900/50 text-emerald-300 border border-emerald-700", else: "bg-blue-900/50 text-blue-300 border border-blue-700"}"}>
-            <%= if ch.channel_type == :tx, do: "TX", else: "RX" %>
-          </span>
-        </:col>
-        <:col :let={ch} label="#"><%= ch.number %></:col>
-        <:col :let={ch} label="Name"><%= ch.name %></:col>
-        <:col :let={ch} label="Friendly Name"><%= ch.friendly_name || "-" %></:col>
-        <:col :let={ch} label="Volume">
-          <%= if ch.volume && ch.volume != 254, do: ch.volume, else: "-" %>
-        </:col>
-      </.table>
+      <div class="overflow-x-auto rounded-box border border-base-300 bg-base-200">
+        <table class="table table-sm">
+          <thead>
+            <tr class="border-b border-base-300">
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Device</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Type</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">#</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Name</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Friendly Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for ch <- @channels do %>
+              <tr class="hover">
+                <td>
+                  <a href={"/devices/#{ch.device_server_name}"} class="link link-primary text-sm">
+                    <%= ch.device_name %>
+                  </a>
+                </td>
+                <td>
+                  <%= if ch.channel_type == :tx do %>
+                    <span class="badge badge-sm badge-accent">TX</span>
+                  <% else %>
+                    <span class="badge badge-sm badge-info">RX</span>
+                  <% end %>
+                </td>
+                <td class="font-mono text-xs"><%= ch.number %></td>
+                <td class="text-sm"><%= ch.name %></td>
+                <td class="text-sm text-base-content/60"><%= ch.friendly_name || "-" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% end %>
     """
   end

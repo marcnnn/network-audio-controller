@@ -54,44 +54,58 @@ defmodule NetaudioWeb.DeviceLive.Index do
     <.header>
       Devices
       <:actions>
-        <.button phx-click="refresh" variant={:secondary}>Refresh</.button>
-        <.button phx-click="discover" variant={:primary}>Discover</.button>
+        <button class="btn btn-ghost btn-sm" phx-click="refresh">Refresh</button>
+        <button class="btn btn-primary btn-sm" phx-click="discover">Discover</button>
       </:actions>
     </.header>
 
     <%= if map_size(@devices) == 0 do %>
-      <.card>
-        <div class="p-12 text-center">
-          <p class="text-gray-400 mb-4">No Dante devices found on the network.</p>
-          <.button phx-click="discover" variant={:primary}>Scan Network</.button>
-        </div>
-      </.card>
+      <.empty_state>
+        No Dante devices found on the network.
+        <:action>
+          <button class="btn btn-primary btn-sm" phx-click="discover">Scan Network</button>
+        </:action>
+      </.empty_state>
     <% else %>
-      <.table id="devices" rows={Enum.map(@devices, fn {_k, v} -> v end)}>
-        <:col :let={device} label="Name">
-          <a href={"/devices/#{device.server_name}"} class="text-indigo-400 hover:text-indigo-300">
-            <%= device.name || device.server_name %>
-          </a>
-        </:col>
-        <:col :let={device} label="IP Address">
-          <%= device.ipv4 %>
-        </:col>
-        <:col :let={device} label="Model">
-          <%= device.model || "-" %>
-        </:col>
-        <:col :let={device} label="Manufacturer">
-          <%= device.manufacturer || "-" %>
-        </:col>
-        <:col :let={device} label="Sample Rate">
-          <%= if device.sample_rate, do: "#{div(device.sample_rate, 1000)} kHz", else: "-" %>
-        </:col>
-        <:col :let={device} label="TX / RX">
-          <%= map_size(device.tx_channels) %> / <%= map_size(device.rx_channels) %>
-        </:col>
-        <:col :let={device} label="Subscriptions">
-          <%= length(device.subscriptions) %>
-        </:col>
-      </.table>
+      <div class="overflow-x-auto rounded-box border border-base-300 bg-base-200">
+        <table class="table table-sm">
+          <thead>
+            <tr class="border-b border-base-300">
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Name</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">IP Address</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Model</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Sample Rate</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Channels</th>
+              <th class="text-xs uppercase tracking-wider text-base-content/60">Subscriptions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for {_k, device} <- Enum.sort_by(@devices, fn {_k, d} -> d.name end) do %>
+              <tr class="hover">
+                <td>
+                  <a href={"/devices/#{device.server_name}"} class="link link-primary font-medium">
+                    <%= device.name || device.server_name %>
+                  </a>
+                </td>
+                <td class="font-mono text-xs"><%= device.ipv4 %></td>
+                <td><%= device.model || "-" %></td>
+                <td>
+                  <%= if device.sample_rate, do: "#{div(device.sample_rate, 1000)} kHz", else: "-" %>
+                </td>
+                <td>
+                  <div class="flex gap-1">
+                    <span class="badge badge-sm badge-accent badge-outline">TX: <%= map_size(device.tx_channels) %></span>
+                    <span class="badge badge-sm badge-info badge-outline">RX: <%= map_size(device.rx_channels) %></span>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge badge-sm badge-ghost"><%= length(device.subscriptions) %></span>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
     <% end %>
     """
   end

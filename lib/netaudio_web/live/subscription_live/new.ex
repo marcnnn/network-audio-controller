@@ -123,26 +123,29 @@ defmodule NetaudioWeb.SubscriptionLive.New do
     <.header>
       Add Subscription
       <:actions>
-        <a href="/subscriptions" class="inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-600">
-          Cancel
-        </a>
+        <a href="/subscriptions" class="btn btn-ghost btn-sm">Cancel</a>
       </:actions>
     </.header>
 
-    <.card>
-      <div class="p-6">
-        <form phx-submit="add_subscription" class="space-y-6">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <%!-- TX Side --%>
-            <div class="space-y-4">
-              <h3 class="text-lg font-medium text-emerald-400">Source (TX)</h3>
+    <div class="card bg-base-200 border border-base-300 shadow">
+      <div class="card-body">
+        <form phx-submit="add_subscription">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <%!-- TX Source --%>
+            <div>
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="badge badge-accent">TX</span>
+                Source (Transmitter)
+              </h3>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">TX Device</label>
+              <div class="form-control mb-4">
+                <label class="label">
+                  <span class="label-text">Device</span>
+                </label>
                 <select
                   name="tx_device_select"
                   phx-change="select_tx_device"
-                  class="w-full bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm"
+                  class="select select-bordered w-full"
                 >
                   <option value="">Select a device...</option>
                   <%= for device <- @device_list do %>
@@ -153,11 +156,13 @@ defmodule NetaudioWeb.SubscriptionLive.New do
                 </select>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">TX Channel</label>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Channel</span>
+                </label>
                 <select
                   name="tx_channel"
-                  class="w-full bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm"
+                  class="select select-bordered w-full"
                   disabled={Enum.empty?(@tx_channels)}
                 >
                   <option value="">Select a channel...</option>
@@ -170,16 +175,28 @@ defmodule NetaudioWeb.SubscriptionLive.New do
               </div>
             </div>
 
-            <%!-- RX Side --%>
-            <div class="space-y-4">
-              <h3 class="text-lg font-medium text-blue-400">Destination (RX)</h3>
+            <%!-- Divider with arrow --%>
+            <div class="lg:hidden divider">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-base-content/30" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">RX Device</label>
+            <%!-- RX Destination --%>
+            <div>
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span class="badge badge-info">RX</span>
+                Destination (Receiver)
+              </h3>
+
+              <div class="form-control mb-4">
+                <label class="label">
+                  <span class="label-text">Device</span>
+                </label>
                 <select
                   name="rx_device_select"
                   phx-change="select_rx_device"
-                  class="w-full bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm"
+                  class="select select-bordered w-full"
                 >
                   <option value="">Select a device...</option>
                   <%= for device <- @device_list do %>
@@ -190,11 +207,13 @@ defmodule NetaudioWeb.SubscriptionLive.New do
                 </select>
               </div>
 
-              <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">RX Channel</label>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Channel</span>
+                </label>
                 <select
                   name="rx_channel"
-                  class="w-full bg-gray-800 border border-gray-600 text-gray-300 rounded-md px-3 py-2 text-sm"
+                  class="select select-bordered w-full"
                   disabled={Enum.empty?(@rx_channels)}
                 >
                   <option value="">Select a channel...</option>
@@ -208,14 +227,19 @@ defmodule NetaudioWeb.SubscriptionLive.New do
             </div>
           </div>
 
-          <div class="flex justify-end pt-4 border-t border-gray-700">
-            <.button type="submit" variant={:primary}>
+          <div class="divider"></div>
+
+          <div class="flex justify-end">
+            <button type="submit" class="btn btn-primary gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+              </svg>
               Add Subscription
-            </.button>
+            </button>
           </div>
         </form>
       </div>
-    </.card>
+    </div>
     """
   end
 end

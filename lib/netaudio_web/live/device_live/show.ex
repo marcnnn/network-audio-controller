@@ -50,165 +50,171 @@ defmodule NetaudioWeb.DeviceLive.Show do
       <.header>
         <%= @device.name || @device.server_name %>
         <:actions>
-          <.button phx-click="identify" variant={:secondary}>Identify Device</.button>
-          <a href="/devices" class="inline-flex items-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-600">
-            Back to Devices
-          </a>
+          <button class="btn btn-ghost btn-sm" phx-click="identify">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z" />
+            </svg>
+            Identify
+          </button>
+          <a href="/devices" class="btn btn-ghost btn-sm">Back</a>
         </:actions>
       </.header>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <.card>
-          <div class="p-6">
-            <h3 class="text-sm font-medium text-gray-400 mb-4">Device Info</h3>
-            <dl class="space-y-3">
-              <div>
-                <dt class="text-xs text-gray-500">Server Name</dt>
-                <dd class="text-sm text-white"><%= @device.server_name %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">IP Address</dt>
-                <dd class="text-sm text-white"><%= @device.ipv4 %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">MAC Address</dt>
-                <dd class="text-sm text-white"><%= @device.mac_address || "-" %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">Model</dt>
-                <dd class="text-sm text-white"><%= @device.model || "-" %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">Manufacturer</dt>
-                <dd class="text-sm text-white"><%= @device.manufacturer || "-" %></dd>
-              </div>
-            </dl>
+      <%!-- Device info cards --%>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="card bg-base-200 border border-base-300 shadow">
+          <div class="card-body p-4">
+            <h3 class="card-title text-sm text-base-content/60">Device Info</h3>
+            <div class="space-y-2 mt-2">
+              <.info_row label="Server Name" value={@device.server_name} />
+              <.info_row label="IP Address" value={@device.ipv4} />
+              <.info_row label="MAC Address" value={@device.mac_address || "-"} />
+              <.info_row label="Model" value={@device.model || "-"} />
+              <.info_row label="Manufacturer" value={@device.manufacturer || "-"} />
+            </div>
           </div>
-        </.card>
-
-        <.card>
-          <div class="p-6">
-            <h3 class="text-sm font-medium text-gray-400 mb-4">Audio Config</h3>
-            <dl class="space-y-3">
-              <div>
-                <dt class="text-xs text-gray-500">Sample Rate</dt>
-                <dd class="text-sm text-white">
-                  <%= if @device.sample_rate, do: "#{@device.sample_rate} Hz", else: "-" %>
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">Latency</dt>
-                <dd class="text-sm text-white">
-                  <%= if @device.latency, do: "#{@device.latency} ns", else: "-" %>
-                </dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">Software</dt>
-                <dd class="text-sm text-white"><%= @device.software || "-" %></dd>
-              </div>
-            </dl>
-          </div>
-        </.card>
-
-        <.card>
-          <div class="p-6">
-            <h3 class="text-sm font-medium text-gray-400 mb-4">Channel Counts</h3>
-            <dl class="space-y-3">
-              <div>
-                <dt class="text-xs text-gray-500">TX Channels</dt>
-                <dd class="text-2xl font-bold text-white"><%= map_size(@device.tx_channels) %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">RX Channels</dt>
-                <dd class="text-2xl font-bold text-white"><%= map_size(@device.rx_channels) %></dd>
-              </div>
-              <div>
-                <dt class="text-xs text-gray-500">Subscriptions</dt>
-                <dd class="text-2xl font-bold text-white"><%= length(@device.subscriptions) %></dd>
-              </div>
-            </dl>
-          </div>
-        </.card>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <.card>
-          <div class="px-6 py-4 border-b border-gray-700">
-            <h3 class="text-lg font-medium text-white">Transmit Channels</h3>
-          </div>
-          <div class="p-6">
-            <%= if map_size(@device.tx_channels) == 0 do %>
-              <p class="text-gray-400 text-sm">No TX channels.</p>
-            <% else %>
-              <ul class="space-y-2">
-                <%= for {num, ch} <- Enum.sort(@device.tx_channels) do %>
-                  <li class="flex items-center justify-between p-2 bg-gray-700/50 rounded text-sm">
-                    <span class="text-gray-400 w-8"><%= num %></span>
-                    <span class="flex-1 text-white"><%= ch.friendly_name || ch.name %></span>
-                    <%= if ch.volume && ch.volume != 254 do %>
-                      <span class="text-gray-400">[<%= ch.volume %>]</span>
-                    <% end %>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </div>
-        </.card>
-
-        <.card>
-          <div class="px-6 py-4 border-b border-gray-700">
-            <h3 class="text-lg font-medium text-white">Receive Channels</h3>
-          </div>
-          <div class="p-6">
-            <%= if map_size(@device.rx_channels) == 0 do %>
-              <p class="text-gray-400 text-sm">No RX channels.</p>
-            <% else %>
-              <ul class="space-y-2">
-                <%= for {num, ch} <- Enum.sort(@device.rx_channels) do %>
-                  <li class="flex items-center justify-between p-2 bg-gray-700/50 rounded text-sm">
-                    <span class="text-gray-400 w-8"><%= num %></span>
-                    <span class="flex-1 text-white"><%= ch.name %></span>
-                    <%= if ch.volume && ch.volume != 254 do %>
-                      <span class="text-gray-400">[<%= ch.volume %>]</span>
-                    <% end %>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </div>
-        </.card>
-      </div>
-
-      <.card>
-        <div class="px-6 py-4 border-b border-gray-700">
-          <h3 class="text-lg font-medium text-white">Subscriptions</h3>
         </div>
-        <div class="p-6">
+
+        <div class="card bg-base-200 border border-base-300 shadow">
+          <div class="card-body p-4">
+            <h3 class="card-title text-sm text-base-content/60">Audio Config</h3>
+            <div class="space-y-2 mt-2">
+              <.info_row label="Sample Rate" value={if @device.sample_rate, do: "#{@device.sample_rate} Hz", else: "-"} />
+              <.info_row label="Latency" value={if @device.latency, do: "#{@device.latency} ns", else: "-"} />
+              <.info_row label="Software" value={@device.software || "-"} />
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 shadow">
+          <div class="card-body p-4">
+            <h3 class="card-title text-sm text-base-content/60">Channel Counts</h3>
+            <div class="stats stats-vertical bg-transparent shadow-none p-0">
+              <div class="stat p-2">
+                <div class="stat-title text-xs">TX Channels</div>
+                <div class="stat-value text-xl text-accent"><%= map_size(@device.tx_channels) %></div>
+              </div>
+              <div class="stat p-2">
+                <div class="stat-title text-xs">RX Channels</div>
+                <div class="stat-value text-xl text-info"><%= map_size(@device.rx_channels) %></div>
+              </div>
+              <div class="stat p-2">
+                <div class="stat-title text-xs">Subscriptions</div>
+                <div class="stat-value text-xl text-primary"><%= length(@device.subscriptions) %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Channels --%>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="card bg-base-200 border border-base-300 shadow">
+          <div class="card-body p-0">
+            <h3 class="card-title text-sm px-5 pt-4 pb-2 border-b border-base-300">
+              <span class="badge badge-accent badge-sm">TX</span>
+              Transmit Channels
+            </h3>
+            <%= if map_size(@device.tx_channels) == 0 do %>
+              <div class="p-6 text-center text-base-content/40 text-sm">No TX channels.</div>
+            <% else %>
+              <div class="overflow-x-auto">
+                <table class="table table-xs">
+                  <thead>
+                    <tr><th>#</th><th>Name</th><th>Friendly Name</th></tr>
+                  </thead>
+                  <tbody>
+                    <%= for {num, ch} <- Enum.sort(@device.tx_channels) do %>
+                      <tr class="hover">
+                        <td class="font-mono text-base-content/50"><%= num %></td>
+                        <td><%= ch.name %></td>
+                        <td class="text-base-content/60"><%= ch.friendly_name || "-" %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 border border-base-300 shadow">
+          <div class="card-body p-0">
+            <h3 class="card-title text-sm px-5 pt-4 pb-2 border-b border-base-300">
+              <span class="badge badge-info badge-sm">RX</span>
+              Receive Channels
+            </h3>
+            <%= if map_size(@device.rx_channels) == 0 do %>
+              <div class="p-6 text-center text-base-content/40 text-sm">No RX channels.</div>
+            <% else %>
+              <div class="overflow-x-auto">
+                <table class="table table-xs">
+                  <thead>
+                    <tr><th>#</th><th>Name</th></tr>
+                  </thead>
+                  <tbody>
+                    <%= for {num, ch} <- Enum.sort(@device.rx_channels) do %>
+                      <tr class="hover">
+                        <td class="font-mono text-base-content/50"><%= num %></td>
+                        <td><%= ch.name %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Subscriptions --%>
+      <div class="card bg-base-200 border border-base-300 shadow">
+        <div class="card-body p-0">
+          <h3 class="card-title text-sm px-5 pt-4 pb-2 border-b border-base-300">Subscriptions</h3>
           <%= if Enum.empty?(@device.subscriptions) do %>
-            <p class="text-gray-400 text-sm">No subscriptions.</p>
+            <div class="p-6 text-center text-base-content/40 text-sm">No subscriptions.</div>
           <% else %>
-            <.table id="device-subscriptions" rows={@device.subscriptions}>
-              <:col :let={sub} label="RX Channel"><%= sub.rx_channel_name %></:col>
-              <:col :let={sub} label="TX Channel"><%= sub.tx_channel_name %></:col>
-              <:col :let={sub} label="TX Device"><%= sub.tx_device_name %></:col>
-              <:col :let={sub} label="Status">
-                <% labels = Constants.subscription_status_label(sub.status_code) %>
-                <span class={"text-xs #{status_color(sub.status_code)}"}><%= hd(labels) %></span>
-              </:col>
-            </.table>
+            <div class="overflow-x-auto">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th class="text-xs">RX Channel</th>
+                    <th class="text-xs">TX Channel</th>
+                    <th class="text-xs">TX Device</th>
+                    <th class="text-xs">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%= for sub <- @device.subscriptions do %>
+                    <tr class="hover">
+                      <td class="font-mono text-xs"><%= sub.rx_channel_name %></td>
+                      <td class="font-mono text-xs"><%= sub.tx_channel_name %></td>
+                      <td><%= sub.tx_device_name %></td>
+                      <td><.sub_status_badge code={sub.status_code} /></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
           <% end %>
         </div>
-      </.card>
+      </div>
     <% else %>
       <.header>Device Not Found</.header>
-      <p class="text-gray-400">The device "<%= @server_name %>" was not found.</p>
-      <a href="/devices" class="text-indigo-400 hover:text-indigo-300 mt-4 inline-block">Back to Devices</a>
+      <div class="alert alert-warning">
+        <span>The device "<%= @server_name %>" was not found on the network.</span>
+      </div>
+      <a href="/devices" class="btn btn-ghost btn-sm mt-4">Back to Devices</a>
     <% end %>
     """
   end
 
-  defp status_color(code) when code in [9, 10, 14, 4], do: "text-green-400"
-  defp status_color(code) when code in [1, 3, 7, 8], do: "text-yellow-400"
-  defp status_color(code) when code in [0], do: "text-gray-400"
-  defp status_color(_code), do: "text-red-400"
+  defp info_row(assigns) do
+    ~H"""
+    <div class="flex justify-between text-sm">
+      <span class="text-base-content/50"><%= @label %></span>
+      <span class="font-mono text-xs"><%= @value %></span>
+    </div>
+    """
+  end
 end

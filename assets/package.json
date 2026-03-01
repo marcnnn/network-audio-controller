@@ -1,0 +1,11 @@
+{
+  "name": "netaudio-assets",
+  "private": true,
+  "description": "Asset pipeline for Netaudio Phoenix app",
+  "scripts": {
+    "build": "cd .. && mix assets.build"
+  },
+  "dependencies": {
+    "daisyui": "^4.0.0"
+  }
+}
