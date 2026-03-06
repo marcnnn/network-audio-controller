@@ -31,6 +31,10 @@ defmodule NetaudioWeb.Router do
     live "/director/domains/:id", DirectorLive.DomainDetail, :show
   end
 
+  scope "/metrics", NetaudioWeb do
+    get "/", MetricsController, :index
+  end
+
   scope "/api", NetaudioWeb.Api do
     pipe_through :api
 

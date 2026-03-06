@@ -9,6 +9,7 @@ defmodule Netaudio.Application do
       NetaudioWeb.Telemetry,
       {Phoenix.PubSub, name: Netaudio.PubSub},
       Netaudio.Dante.Browser,
+      Netaudio.Dante.PrometheusExporter,
       NetaudioWeb.Endpoint
     ]
 
